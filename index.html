@@ -18,14 +18,13 @@
             from { transform: translateY(0); opacity: 1; }
             to { transform: translateY(100%); opacity: 0; }
         }
-        /* Spinner animation */
         .loader {
             border: 3px solid #f3f3f3;
             border-radius: 50%;
             border-top: 3px solid #4f46e5;
             width: 20px;
             height: 20px;
-            -webkit-animation: spin 1s linear infinite; /* Safari */
+            -webkit-animation: spin 1s linear infinite;
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
@@ -146,13 +145,10 @@
                                     </div>
                                 </td>
                             </tr>
-                            <!-- State Kosong -->
+                            <!-- State Kosong / Error -->
                             <tr id="emptyState" class="hidden">
-                                <td colspan="4" class="px-4 py-12 text-center text-gray-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                                    </svg>
-                                    Belum ada data pengajuan izin.
+                                <td colspan="4" class="px-4 py-12 text-center text-gray-400" id="emptyStateContent">
+                                    Belum ada data.
                                 </td>
                             </tr>
                         </tbody>
@@ -162,103 +158,80 @@
         </div>
     </main>
 
-    <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
-        // ==========================================
-        // KONFIGURASI API (UBAH URL INI NANTINYA)
-        // ==========================================
-        // Ganti string di bawah ini dengan Web App URL dari Google Apps Script Anda!
+        // PASTIKAN URL INI BENAR DAN BERAKHIRAN /exec
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7I-mWYDEIMXMUZ2UjpcwBmfVPCZdy9dFtMVCMtMMR5J62GX99bfWnamIE9yTu-6jX/exec'; 
 
-        // Elemen DOM
         const form = document.getElementById('izinForm');
         const tabelBody = document.getElementById('tabelBody');
         const emptyState = document.getElementById('emptyState');
+        const emptyStateContent = document.getElementById('emptyStateContent');
         const loadingState = document.getElementById('loadingState');
         const toastContainer = document.getElementById('toastContainer');
         const btnSubmit = document.getElementById('btnSubmit');
         const btnText = document.getElementById('btnText');
         const btnLoader = document.getElementById('btnLoader');
 
-        // Helper: Format Tanggal ke format Indonesia
         function formatTanggalIndo(dateString) {
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return dateString; // Jika invalid, kembalikan string aslinya
-
-            const options = { 
-                weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
-                hour: '2-digit', minute: '2-digit'
-            };
+            if (isNaN(date.getTime())) return dateString; 
+            const options = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
             return date.toLocaleDateString('id-ID', options);
         }
 
-        // Helper: Tampilkan Toast Notifikasi
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
-            
-            let bgColor = 'bg-green-500';
-            let icon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
-            
-            if (type === 'error') {
-                bgColor = 'bg-red-500';
-                icon = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
-            }
+            let bgColor = type === 'error' ? 'bg-red-500' : 'bg-green-500';
+            let icon = type === 'error' 
+                ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`
+                : `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
 
             toast.className = `toast-enter flex items-center w-full max-w-xs p-4 text-white ${bgColor} rounded-lg shadow-lg pointer-events-auto`;
-            toast.innerHTML = `
-                <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg bg-white/20">
-                    ${icon}
-                </div>
-                <div class="ml-3 text-sm font-medium">${message}</div>
-            `;
-
+            toast.innerHTML = `<div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg bg-white/20">${icon}</div><div class="ml-3 text-sm font-medium">${message}</div>`;
             toastContainer.appendChild(toast);
-
             setTimeout(() => {
                 toast.classList.replace('toast-enter', 'toast-exit');
                 setTimeout(() => { if (toastContainer.contains(toast)) toastContainer.removeChild(toast); }, 300);
             }, 4000);
         }
 
-        // Fetch Data dari Google Sheets
         async function fetchData() {
-            // Reset tabel, tampilkan loading
-            const barisData = tabelBody.querySelectorAll('.data-row');
-            barisData.forEach(row => row.remove());
+            document.querySelectorAll('.data-row').forEach(row => row.remove());
             emptyState.classList.add('hidden');
             loadingState.classList.remove('hidden');
 
-            // Jika SCRIPT_URL belum diubah, tahan eksekusi dan beritahu pengguna
             if(SCRIPT_URL === 'URL_WEB_APP_GOOGLE_APPS_SCRIPT_ANDA_DISINI') {
                 loadingState.classList.add('hidden');
                 emptyState.classList.remove('hidden');
-                emptyState.innerHTML = `<td colspan="4" class="px-4 py-12 text-center text-red-500 text-sm">
-                    ⚠️ Anda belum memasukkan SCRIPT_URL di dalam kode index.html.<br>Ikuti panduan instalasi untuk mendapatkan URL dari Google Apps Script.
-                </td>`;
+                emptyStateContent.innerHTML = `⚠️ URL SCRIPT belum dimasukkan.`;
                 return;
             }
 
             try {
-                const response = await fetch(SCRIPT_URL);
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+                
                 const result = await response.json();
-
                 loadingState.classList.add('hidden');
 
                 if (result.status === 'success' && result.data.length > 0) {
                     renderTabel(result.data);
                 } else {
                     emptyState.classList.remove('hidden');
+                    emptyStateContent.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>Belum ada data pengajuan izin.`;
                 }
             } catch (error) {
-                console.error("Error fetching data:", error);
+                console.error("Fetch error:", error);
                 loadingState.classList.add('hidden');
-                showToast('Gagal memuat data. Periksa koneksi internet.', 'error');
+                emptyState.classList.remove('hidden');
+                emptyStateContent.innerHTML = `<div class="text-red-500 font-medium mb-1">⚠️ Terjadi Kesalahan Koneksi Jaringan (CORS)</div><div class="text-xs text-gray-500">Pastikan URL berakhiran <b>/exec</b> dan akses deployment di Google Script adalah <b>"Semua Orang" (Anyone)</b>.</div>`;
             }
         }
 
-        // Render data ke dalam tabel HTML
         function renderTabel(dataIzin) {
             dataIzin.forEach((izin) => {
                 const tr = document.createElement('tr');
@@ -269,58 +242,26 @@
                 else if(izin.kategori === 'Lomba') categoryColor = 'bg-purple-100 text-purple-800';
                 else if(izin.kategori === 'Acara Keluarga') categoryColor = 'bg-green-100 text-green-800';
 
-                // Warna badge status
-                let statusBadge = `
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
-                        ${izin.status}
-                    </span>`;
-                
-                if(izin.status.toLowerCase() === 'disetujui') {
-                     statusBadge = `
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">
-                        Disetujui
-                    </span>`;
-                } else if (izin.status.toLowerCase() === 'ditolak') {
-                     statusBadge = `
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-200">
-                        Ditolak
-                    </span>`;
-                }
+                let statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-yellow-50 text-yellow-700 border border-yellow-200"><span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>${izin.status}</span>`;
+                if(izin.status.toLowerCase() === 'disetujui') statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">Disetujui</span>`;
+                else if (izin.status.toLowerCase() === 'ditolak') statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-200">Ditolak</span>`;
 
                 tr.innerHTML = `
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <div class="font-medium text-gray-900">${izin.nama}</div>
-                        <div class="text-xs text-gray-500">Kelas: ${izin.kelas}</div>
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${categoryColor}">
-                            ${izin.kategori}
-                        </span>
-                    </td>
-                    <td class="px-4 py-4 text-sm">
-                        <div class="text-gray-900"><strong>Mulai:</strong> ${formatTanggalIndo(izin.waktuMulai)}</div>
-                        <div class="text-gray-500 mt-1"><strong>Sampai:</strong> ${formatTanggalIndo(izin.waktuAkhir)}</div>
-                        <div class="text-xs text-gray-400 mt-2 line-clamp-1 group-hover:line-clamp-none transition-all" title="${izin.keterangan}">Ket: ${izin.keterangan}</div>
-                    </td>
-                    <td class="px-4 py-4 whitespace-nowrap">
-                        ${statusBadge}
-                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap"><div class="font-medium text-gray-900">${izin.nama}</div><div class="text-xs text-gray-500">Kelas: ${izin.kelas}</div></td>
+                    <td class="px-4 py-4 whitespace-nowrap"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${categoryColor}">${izin.kategori}</span></td>
+                    <td class="px-4 py-4 text-sm"><div class="text-gray-900"><strong>Mulai:</strong> ${formatTanggalIndo(izin.waktuMulai)}</div><div class="text-gray-500 mt-1"><strong>Sampai:</strong> ${formatTanggalIndo(izin.waktuAkhir)}</div><div class="text-xs text-gray-400 mt-2 line-clamp-1 group-hover:line-clamp-none transition-all" title="${izin.keterangan}">Ket: ${izin.keterangan}</div></td>
+                    <td class="px-4 py-4 whitespace-nowrap">${statusBadge}</td>
                 `;
                 tabelBody.appendChild(tr);
             });
         }
 
-        // Event Listener untuk Submit
         form.addEventListener('submit', async function(e) {
             e.preventDefault(); 
-            
             if(SCRIPT_URL === 'URL_WEB_APP_GOOGLE_APPS_SCRIPT_ANDA_DISINI') {
-                showToast('URL Google Apps Script belum disetel di file HTML!', 'error');
-                return;
+                showToast('URL Google Apps Script belum disetel!', 'error'); return;
             }
 
-            // Ambil data
             const dataForm = {
                 nama: document.getElementById('nama').value.trim(),
                 kelas: document.getElementById('kelas').value.trim(),
@@ -330,49 +271,39 @@
                 keterangan: document.getElementById('keterangan').value.trim()
             };
 
-            // Validasi waktu
             if (new Date(dataForm.waktuAkhir) <= new Date(dataForm.waktuMulai)) {
-                showToast('Waktu selesai harus lebih dari waktu mulai!', 'error');
-                return;
+                showToast('Waktu selesai harus lebih dari waktu mulai!', 'error'); return;
             }
 
-            // Ubah state tombol menjadi loading
-            btnSubmit.disabled = true;
-            btnText.classList.add('hidden');
-            btnLoader.classList.remove('hidden');
+            btnSubmit.disabled = true; btnText.classList.add('hidden'); btnLoader.classList.remove('hidden');
 
             try {
-                // Kirim POST Request ke GAS Web App
-                // Note: Kita menggunakan text/plain (default) pada stringify agar tidak terkena CORS OPTIONS preflight issue di GAS
                 const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
+                    redirect: 'follow', // Penting untuk GAS
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8' // Menghindari preflight OPTIONS
+                    },
                     body: JSON.stringify(dataForm)
                 });
 
                 const result = await response.json();
-
                 if(result.status === 'success') {
                     showToast('Pengajuan izin berhasil dikirim!');
                     form.reset();
-                    fetchData(); // Refresh tabel setelah submit
+                    fetchData();
                 } else {
                     showToast('Gagal: ' + result.message, 'error');
                 }
-
             } catch (error) {
-                console.error("Error submitting form:", error);
-                showToast('Terjadi kesalahan jaringan saat mengirim data.', 'error');
+                console.error("Submit error:", error);
+                showToast('Terjadi kesalahan jaringan (CORS). Periksa pengaturan akses Deployment.', 'error');
             } finally {
-                // Kembalikan state tombol
-                btnSubmit.disabled = false;
-                btnText.classList.remove('hidden');
-                btnLoader.classList.add('hidden');
+                btnSubmit.disabled = false; btnText.classList.remove('hidden'); btnLoader.classList.add('hidden');
             }
         });
 
-        // Panggil fetch data pertama kali saat halaman dimuat
         document.addEventListener('DOMContentLoaded', fetchData);
-
     </script>
 </body>
 </html>
