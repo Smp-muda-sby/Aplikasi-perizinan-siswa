@@ -36,7 +36,7 @@
         
         .card-bg-kustom {
             /* Lapisan putih transparan 85% agar teks tetap terbaca, digabung dengan gambar */
-            background-image: linear-gradient(rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.95)), url('background.jpg');
+            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.95)), url('background.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -50,7 +50,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="h-10 w-10 rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-50 shrink-0">
-                    <img src="images.jpeg" alt="Logo Sekolah" class="w-full h-full object-cover">
+                    <!-- Ganti URL di src=".." bawah ini dengan link Logo Sekolah Anda -->
+                    <img src="https://placehold.co/100x100/e2e8f0/64748b?text=Logo" alt="Logo Sekolah" class="w-full h-full object-cover">
                 </div>
                 <div>
                     <h1 class="text-lg font-bold text-slate-900 leading-tight">Portal Perizinan</h1>
@@ -80,7 +81,8 @@
         <section id="loginScreen" class="w-full max-w-md card-bg-kustom rounded-2xl shadow-xl shadow-slate-100 border border-slate-100 p-8 transition-all duration-300 transform scale-100">
             <div class="text-center mb-8">
                 <div class="relative inline-block mb-4">
-                    <img src="images.jpg" alt="Gedung Sekolah SMP Muhammadiyah 2" class="w-28 h-28 object-cover rounded-2xl shadow-md border border-slate-100" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Foto+Sekolah'">
+                    <!-- Ganti URL di src=".." bawah ini dengan link Foto Gedung Sekolah Anda -->
+                    <img src="https://placehold.co/150x150/e2e8f0/64748b?text=Foto+Sekolah" alt="Gedung Sekolah SMP Muhammadiyah 2" class="w-28 h-28 object-cover rounded-2xl shadow-md border border-slate-100" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Foto+Sekolah'">
                     <div class="absolute -bottom-2 -right-2 bg-indigo-600 text-white p-1.5 rounded-xl shadow-sm border-2 border-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -109,7 +111,36 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Kelas</label>
-                    <input type="text" id="loginSiswaKelas" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all placeholder:text-slate-400 font-medium text-sm" placeholder="Contoh: 7Y">
+                    <select id="loginSiswaKelas" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:bg-white outline-none transition-all text-slate-700 font-medium text-sm">
+                        <option value="" disabled selected>Pilih Kelas Anda...</option>
+                        <optgroup label="Jenjang Kelas 7">
+                            <option value="7A">7A</option>
+                            <option value="7B">7B</option>
+                            <option value="7C">7C</option>
+                            <option value="7D">7D</option>
+                            <option value="7E">7E</option>
+                            <option value="7F">7F</option>
+                            <option value="7G">7G</option>
+                        </optgroup>
+                        <optgroup label="Jenjang Kelas 8">
+                            <option value="8A">8A</option>
+                            <option value="8B">8B</option>
+                            <option value="8C">8C</option>
+                            <option value="8D">8D</option>
+                            <option value="8E">8E</option>
+                            <option value="8F">8F</option>
+                            <option value="8G">8G</option>
+                        </optgroup>
+                        <optgroup label="Jenjang Kelas 9">
+                            <option value="9A">9A</option>
+                            <option value="9B">9B</option>
+                            <option value="9C">9C</option>
+                            <option value="9D">9D</option>
+                            <option value="9E">9E</option>
+                            <option value="9F">9F</option>
+                            <option value="9G">9G</option>
+                        </optgroup>
+                    </select>
                 </div>
                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md shadow-indigo-100 hover:shadow-indigo-200 transition-all text-sm flex items-center justify-center gap-2 mt-2">
                     Masuk Portal Siswa
@@ -137,7 +168,7 @@
             
             <!-- Kolom Form Izin -->
             <div class="lg:col-span-1">
-                <div class="card-bg-kustom rounded-2xl shadow-sm border border-slate-100 p-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
                     <h2 class="text-lg font-bold text-slate-900 border-b pb-4 mb-4 flex items-center gap-2.5">
                         <span class="p-1.5 bg-indigo-50 rounded-lg text-indigo-600">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -330,6 +361,13 @@
                     
                     <!-- Search & Filter Controls -->
                     <div class="flex flex-col sm:flex-row gap-2">
+                        <select id="filterJenjangGuru" onchange="filterDataGuru()" class="px-3 py-2 w-full sm:w-auto border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium bg-white text-slate-600">
+                            <option value="semua">Semua Jenjang</option>
+                            <option value="7">Kelas 7</option>
+                            <option value="8">Kelas 8</option>
+                            <option value="9">Kelas 9</option>
+                        </select>
+
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -396,11 +434,11 @@
         // =========================================================
         const CONFIG = {
             // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI BAWAH INI
-            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbz7I-mWYDEIMXMUZ2UjpcwBmfVPCZdy9dFtMVCMtMMR5J62GX99bfWnamIE9yTu-6jX/exec',
+            SCRIPT_URL: 'URL_WEB_APP_GOOGLE_APPS_SCRIPT_ANDA_DISINI',
             
             // Atur Akun Pengaman untuk Guru Anda di bawah ini
             GURU_USERNAME: 'guru',
-            GURU_PASSWORD: 'Mbaspartans@'
+            GURU_PASSWORD: 'guru123'
         };
 
         // State Global Aplikasi
@@ -735,6 +773,7 @@
         // Fungsi Pencarian Data Terpadu di Dashboard Guru
         function filterDataGuru() {
             const query = document.getElementById('pencarianGuru').value.toLowerCase().trim();
+            const filterJenjang = document.getElementById('filterJenjangGuru').value;
             const rows = document.querySelectorAll('.guru-data-row');
             let foundCount = 0;
 
@@ -742,7 +781,16 @@
                 const nama = row.dataset.nama || '';
                 const kelas = row.dataset.kelas || '';
                 
-                if (nama.includes(query) || kelas.includes(query)) {
+                // Cek pencarian teks
+                const matchTeks = nama.includes(query) || kelas.includes(query);
+                
+                // Cek filter jenjang (Asumsi format kelas "7A", "8B", dst, jadi diawali angka 7, 8, 9)
+                let matchJenjang = true;
+                if (filterJenjang !== 'semua') {
+                    matchJenjang = kelas.startsWith(filterJenjang);
+                }
+                
+                if (matchTeks && matchJenjang) {
                     row.classList.remove('hidden');
                     foundCount++;
                 } else {
@@ -753,7 +801,7 @@
             const emptyState = document.getElementById('emptyStateGuru');
             if (foundCount === 0) {
                 emptyState.classList.remove('hidden');
-                document.getElementById('emptyStateContentGuru').innerText = `Pencarian "${query}" tidak ditemukan.`;
+                document.getElementById('emptyStateContentGuru').innerText = `Pencarian tidak ditemukan.`;
             } else {
                 emptyState.classList.add('hidden');
             }
