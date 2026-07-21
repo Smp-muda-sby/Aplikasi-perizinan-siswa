@@ -73,7 +73,7 @@
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <!-- Logo Sekolah di Header -->
-                <img src="20260320_215711_0000.png" alt="Foto Sekolah" class="h-10 w-10 object-cover rounded-xl" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Foto'">
+                <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" alt="Foto Sekolah" class="h-10 w-10 object-cover rounded-xl" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Foto'">
                 <div>
                     <h1 class="font-bold text-lg text-slate-900 leading-tight">Portal Izin</h1>
                     <p class="text-xs text-slate-500 font-medium">SMP Muhammadiyah 2 SBY</p>
@@ -98,7 +98,7 @@
                 <div class="p-8 pb-6 text-center relative z-10">
                     <div class="inline-flex items-center justify-center p-1 bg-slate-50 rounded-2xl mb-4 border border-slate-100 shadow-sm">
                         <!-- Foto Sekolah Besar di Login -->
-                        <img src="images.jpg" alt="Foto Sekolah" class="h-24 w-24 object-cover rounded-xl" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Foto+Sekolah'">
+                        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Foto Sekolah" class="h-24 w-24 object-cover rounded-xl" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Foto+Sekolah'">
                     </div>
                     <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Portal Perizinan</h1>
                     <p class="text-sm text-slate-500 mt-1 font-medium">SMP Muhammadiyah 2 Surabaya</p>
@@ -800,7 +800,100 @@
                 return;
             }
             
-            prosesCetakSurat(selectedIds);
+            // Menggunakan format baru khusus cetak massal (kolektif/1 lembar)
+            prosesCetakSuratKolektif(selectedIds);
+        }
+
+        function prosesCetakSuratKolektif(idsArray) {
+            const container = document.getElementById('printSuratContainer');
+            container.innerHTML = ''; // Bersihkan kontainer
+            
+            const now = new Date();
+            const waktuCetak = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            // Generate baris tabel untuk setiap siswa
+            let rowsHTML = '';
+            idsArray.forEach((id, index) => {
+                const data = globalData.find(d => String(d.id) === String(id));
+                if (!data) return;
+
+                let tglPelaksanaan = formatTanggalIndo(data.waktuMulai);
+                if (data.waktuMulai !== data.waktuAkhir) {
+                    tglPelaksanaan += `<br>s/d<br>${formatTanggalIndo(data.waktuAkhir)}`;
+                }
+
+                const statusColorClass = data.status === 'Disetujui' ? 'text-green-600' : (data.status === 'Ditolak' ? 'text-red-600' : 'text-yellow-600');
+
+                rowsHTML += `
+                    <tr>
+                        <td class="py-2 px-2 border border-black text-center text-sm">${index + 1}</td>
+                        <td class="py-2 px-2 border border-black font-bold text-sm">${data.nama || "-"}</td>
+                        <td class="py-2 px-2 border border-black text-center text-sm">${data.kelas || "-"}</td>
+                        <td class="py-2 px-2 border border-black text-center uppercase text-xs font-semibold">${data.kategori || "-"}</td>
+                        <td class="py-2 px-2 border border-black text-xs text-center">${tglPelaksanaan}</td>
+                        <td class="py-2 px-2 border border-black text-xs">${data.keterangan || "-"}</td>
+                        <td class="py-2 px-2 border border-black text-center font-bold uppercase ${statusColorClass} text-xs">${data.status || "Menunggu"}</td>
+                    </tr>
+                `;
+            });
+
+            // Template Surat Kolektif
+            const suratHTML = `
+                <div class="surat-page bg-white w-full max-w-4xl mx-auto p-10 pt-8">
+                    <div class="flex items-center justify-between border-b-2 border-black pb-4 mb-6">
+                        <img src="20260320_215711_0000.png" alt="Logo Sekolah" class="w-20 h-20 object-cover rounded-lg grayscale print:grayscale-0" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Logo'">
+                        <div class="text-center flex-1 px-4">
+                            <h1 class="font-bold text-2xl uppercase tracking-wider">Surat Izin Siswa (Kolektif)</h1>
+                            <h2 class="text-lg font-medium">SMP Muhammadiyah 2 Surabaya</h2>
+                            <p class="text-sm">Jl. Genteng Muhamadiyah No.28, Genteng, Kec. Genteng, Surabaya, Jawa Timur 60275</p>
+                        </div>
+                        <div class="w-20"></div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <p class="mb-4">Yang bertanda tangan di bawah ini, menerangkan bahwa pengajuan perizinan untuk siswa-siswi berikut:</p>
+                        <table class="w-full text-left border-collapse border border-black">
+                            <thead style="-webkit-print-color-adjust: exact; print-color-adjust: exact;" class="bg-slate-100">
+                                <tr>
+                                    <th class="py-2 px-2 border border-black text-center w-10 text-sm">No</th>
+                                    <th class="py-2 px-2 border border-black text-center text-sm">Nama Lengkap</th>
+                                    <th class="py-2 px-2 border border-black text-center w-16 text-sm">Kelas</th>
+                                    <th class="py-2 px-2 border border-black text-center w-24 text-sm">Kategori</th>
+                                    <th class="py-2 px-2 border border-black text-center w-32 text-sm">Pelaksanaan</th>
+                                    <th class="py-2 px-2 border border-black text-center text-sm">Keterangan / Alasan</th>
+                                    <th class="py-2 px-2 border border-black text-center w-24 text-sm">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rowsHTML}
+                            </tbody>
+                        </table>
+                        <p class="mt-4">Surat ini digenerate secara otomatis melalui sistem Portal Perizinan Sekolah dan sah dipergunakan sebagaimana mestinya.</p>
+                    </div>
+
+                    <div class="flex justify-end mt-12 text-center">
+                        <div>
+                            <p>Surabaya, <span>${waktuCetak}</span></p>
+                            <p class="mt-1">Mengetahui,</p>
+                            <p class="mt-20 font-bold underline border-black">Guru / Petugas Piket</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = suratHTML;
+
+            // Mengubah mode body agar CSS mengenali ini adalah cetak surat individu/massal
+            document.body.classList.add('print-mode-individu');
+            
+            // Panggil dialog print dari browser
+            window.print();
+            
+            // Mengembalikan ke mode normal setelah dialog tutup
+            setTimeout(() => {
+                document.body.classList.remove('print-mode-individu');
+                container.innerHTML = ''; // Hapus memory template setelah dicetak
+            }, 500);
         }
 
         function prosesCetakSurat(idsArray) {
@@ -825,7 +918,7 @@
                 const suratHTML = `
                     <div class="surat-page bg-white w-full max-w-3xl mx-auto p-10 pt-8">
                         <div class="flex items-center justify-between border-b-2 border-black pb-4 mb-6">
-                            <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80" alt="Logo Sekolah" class="w-20 h-20 object-cover rounded-lg grayscale print:grayscale-0" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Logo'">
+                            <img src="20260320_215711_0000.png" alt="Logo Sekolah" class="w-20 h-20 object-cover rounded-lg grayscale print:grayscale-0" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Logo'">
                             <div class="text-center flex-1 px-4">
                                 <h1 class="font-bold text-2xl uppercase tracking-wider">Surat Izin Siswa</h1>
                                 <h2 class="text-lg font-medium">SMP Muhammadiyah 2 Surabaya</h2>
