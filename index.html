@@ -56,7 +56,7 @@
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <!-- Logo Sekolah di Header -->
-                <img src="https://imgur.com/ocWMh0R" alt="Foto Sekolah" class="h-10 w-10 object-cover rounded-xl" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Foto'">
+                <img src="background.jpg" alt="Foto Sekolah" class="h-10 w-10 object-cover rounded-xl" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Foto'">
                 <div>
                     <h1 class="font-bold text-lg text-slate-900 leading-tight">Portal Izin</h1>
                     <p class="text-xs text-slate-500 font-medium">SMP Muhammadiyah 2 SBY</p>
@@ -81,7 +81,7 @@
                 <div class="p-8 pb-6 text-center relative z-10">
                     <div class="inline-flex items-center justify-center p-1 bg-slate-50 rounded-2xl mb-4 border border-slate-100 shadow-sm">
                         <!-- Foto Sekolah Besar di Login -->
-                        <img src="https://imgur.com/XuJpQHb" alt="Foto Sekolah" class="h-24 w-24 object-cover rounded-xl" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Foto+Sekolah'">
+                        <img src="images.jpeg" alt="Foto Sekolah" class="h-24 w-24 object-cover rounded-xl" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Foto+Sekolah'">
                     </div>
                     <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Portal Perizinan</h1>
                     <p class="text-sm text-slate-500 mt-1 font-medium">SMP Muhammadiyah 2 Surabaya</p>
@@ -747,8 +747,8 @@
 
         // FUNGSI UTAMA 2: Cetak Per Individu (Surat Izin)
         function cetakIndividu(id) {
-            // Temukan data berdasarkan ID
-            const data = globalData.find(d => d.id === id);
+            // Temukan data berdasarkan ID. Menggunakan String() agar pengecekan tipe data (Number vs String) aman.
+            const data = globalData.find(d => String(d.id) === String(id));
             if(!data) {
                 showToast('Data tidak ditemukan', 'error');
                 return;
