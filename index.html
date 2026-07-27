@@ -13,16 +13,21 @@
         }
 
         .card-bg-kustom {
+            /* Lapisan putih transparan 85% agar teks tetap terbaca, digabung dengan gambar */
             background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.95)), url('https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
         }
 
+        /* Gaya Khusus untuk Cetak Laporan (PDF/Printer) */
         @media print {
             body { background: #fff !important; }
             #globalHeader, #loginScreen, #siswaScreen, #toastContainer, .no-print { display: none !important; }
             
+            /* ==========================================
+               MODE 1: CETAK REKAPITULASI (SEMUA DATA) 
+               ========================================== */
             body:not(.print-mode-individu) #guruScreen { display: block !important; width: 100% !important; padding: 0 !important; }
             body:not(.print-mode-individu) #printSuratContainer { display: none !important; }
             
@@ -34,8 +39,13 @@
             body:not(.print-mode-individu) th, body:not(.print-mode-individu) td { border: 1px solid #ccc !important; padding: 8px !important; white-space: normal !important; color: #000 !important; }
             body:not(.print-mode-individu) thead { background: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             
+            /* Sembunyikan baris yang tidak dipilih saat print rekap */
             body:not(.print-mode-individu) tr.hide-for-print { display: none !important; }
 
+            /* ==========================================
+               MODE 2: CETAK INDIVIDU / MASSAL (SURAT IZIN) 
+               ========================================== */
+            /* Mengubah format container agar tidak memblokir sistem Halaman Baru (Pagination) dari browser */
             body.print-mode-individu, body.print-mode-individu main { 
                 display: block !important; 
                 height: auto !important; 
@@ -58,9 +68,11 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
+    <!-- HEADER -->
     <header id="globalHeader" class="hidden bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
+                <!-- Logo Sekolah di Header -->
                 <img src="LOGO.jpg" alt="Foto Sekolah" class="h-10 w-10 object-cover rounded-xl" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Foto'">
                 <div>
                     <h1 class="font-bold text-lg text-slate-900 leading-tight">Portal Izin</h1>
@@ -78,10 +90,14 @@
 
     <main class="flex-grow flex flex-col items-center justify-center p-4 sm:p-6 w-full relative">
         
+        <!-- SCREEN 1: LOGIN -->
         <section id="loginScreen" class="w-full max-w-md w-full">
+            <!-- Background kustom diterapkan pada card login -->
             <div class="card-bg-kustom bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden relative">
+                
                 <div class="p-8 pb-6 text-center relative z-10">
                     <div class="inline-flex items-center justify-center p-1 bg-slate-50 rounded-2xl mb-4 border border-slate-100 shadow-sm">
+                        <!-- Foto Sekolah Besar di Login -->
                         <img src="images.jpg" alt="Foto Sekolah" class="h-24 w-24 object-cover rounded-xl" onerror="this.src='https://placehold.co/150x150/e2e8f0/64748b?text=Foto+Sekolah'">
                     </div>
                     <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Portal Perizinan</h1>
@@ -89,11 +105,13 @@
                 </div>
 
                 <div class="px-8 pb-8 relative z-10">
+                    <!-- Tab Switcher -->
                     <div class="flex p-1 bg-slate-100/80 backdrop-blur-sm rounded-xl mb-6">
                         <button id="tabSiswa" onclick="switchTab('siswa')" class="flex-1 py-2.5 text-sm font-semibold rounded-lg bg-white text-indigo-600 shadow-sm transition-all">Siswa</button>
                         <button id="tabGuru" onclick="switchTab('guru')" class="flex-1 py-2.5 text-sm font-semibold rounded-lg text-slate-500 hover:text-slate-700 transition-all">Guru / Staff</button>
                     </div>
 
+                    <!-- Form Siswa -->
                     <div id="formSiswa" class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Nama Lengkap Siswa</label>
@@ -101,6 +119,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Kelas</label>
+                            <!-- Menggunakan Dropdown untuk pilihan kelas lengkap -->
                             <select id="loginKelas" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all appearance-none">
                                 <option value="" disabled selected>Pilih Kelas Anda...</option>
                                 <optgroup label="Kelas 7">
@@ -122,6 +141,7 @@
                         </button>
                     </div>
 
+                    <!-- Form Guru -->
                     <div id="formGuru" class="space-y-4 hidden">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Username Guru</label>
@@ -139,6 +159,7 @@
             </div>
         </section>
 
+        <!-- SCREEN 2: SISWA DASHBOARD -->
         <section id="siswaScreen" class="hidden w-full max-w-xl mx-auto flex flex-col gap-6 py-4">
             
             <div class="card-bg-kustom bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden">
@@ -181,25 +202,32 @@
                 </div>
             </div>
 
+            <!-- Riwayat Izin Siswa -->
             <div>
                 <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3 px-1">Riwayat Pengajuan Saya</h3>
                 <div id="containerRiwayatSiswa" class="space-y-3">
+                    <!-- Data riwayat akan dirender di sini via JS -->
                 </div>
             </div>
         </section>
 
+        <!-- SCREEN 3: GURU DASHBOARD -->
         <section id="guruScreen" class="hidden w-full max-w-7xl mx-auto flex flex-col gap-6 py-4 px-2">
             
+            <!-- Judul Khusus Cetak PDF -->
             <div class="hidden print-header">
                 <h1 class="text-xl font-bold text-slate-900 uppercase">Rekapitulasi Data Perizinan Siswa</h1>
                 <p class="text-sm text-slate-600 mt-1">SMP Muhammadiyah 2 Surabaya</p>
                 <p class="text-xs text-slate-500 mt-1 italic" id="waktuCetakInfo"></p>
             </div>
 
+            <!-- Panel Ringkasan -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
                     <div class="bg-indigo-50 p-3 rounded-xl text-indigo-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
                     </div>
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Izin</p>
@@ -208,7 +236,9 @@
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
                     <div class="bg-amber-50 p-3 rounded-xl text-amber-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                     </div>
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Menunggu</p>
@@ -217,7 +247,9 @@
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
                     <div class="bg-emerald-50 p-3 rounded-xl text-emerald-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                     </div>
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Disetujui</p>
@@ -226,7 +258,9 @@
                 </div>
                 <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
                     <div class="bg-rose-50 p-3 rounded-xl text-rose-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                     </div>
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Ditolak</p>
@@ -235,11 +269,15 @@
                 </div>
             </div>
 
+            <!-- Tabel Data Utama -->
             <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[600px] no-print">
+                <!-- Toolbar Data -->
                 <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/50 backdrop-blur-sm">
                     <div class="flex items-center gap-3">
                         <div class="bg-indigo-50 p-2 rounded-lg text-indigo-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
                         </div>
                         <div>
                             <h2 class="text-lg font-bold text-slate-800">Panel Verifikasi Perizinan Siswa</h2>
@@ -247,6 +285,7 @@
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                        <!-- Dropdown Filter Kelas -->
                         <select id="filterKelasGuru" onchange="renderTabelGuru()" class="w-full sm:w-auto px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
                             <option value="">Semua Jenjang</option>
                             <option value="7">Kelas 7 (Semua)</option>
@@ -254,20 +293,32 @@
                             <option value="9">Kelas 9 (Semua)</option>
                         </select>
                         
+                        <!-- Pencarian Nama -->
                         <div class="relative flex-1 sm:w-64">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-3 top-2.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute left-3 top-2.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
                             <input type="text" id="searchInput" onkeyup="renderTabelGuru()" placeholder="Cari nama siswa..." class="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                         </div>
                         
+                        <!-- Tombol Refresh -->
                         <button onclick="fetchData()" class="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl bg-indigo-50 hover:bg-indigo-100 transition-all">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
                             Refresh
                         </button>
 
+                        <!-- Tombol Cetak Surat Massal -->
                         <button onclick="cetakSuratMassal()" id="btnCetakSuratMassal" class="hidden text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl bg-blue-50 hover:bg-blue-100 transition-all no-print">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
+                            </svg>
                             <span>Cetak Surat (0)</span>
                         </button>
+                        
+                        <!-- Tombol Cetak PDF Rekapitulasi -->
+                        
                     </div>
                 </div>
 
@@ -286,23 +337,29 @@
                             </tr>
                         </thead>
                         <tbody id="tabelGuruBody" class="divide-y divide-slate-100 bg-white">
+                            <!-- Data tabel dirender via JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
+        <!-- TEMPLATE CETAK SURAT IZIN (Tersembunyi, diisi dinamis oleh JS) -->
         <div id="printSuratContainer" class="hidden"></div>
 
     </main>
 
+    <!-- Toast Notification -->
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
         // ==========================================
         // KONFIGURASI UTAMA
         // ==========================================
+        // GANTI URL INI DENGAN URL WEB APP DARI GOOGLE APPS SCRIPT ANDA
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxB_s65URFjPoOl1Ek3WdyKvClVgpUSW4IMWz2RWzv7aXs4hQUEz-cgu7LEY_rGAUsIkA/exec'; 
+
+        // GANTI USERNAME DAN PASSWORD GURU SESUAI KEINGINAN ANDA
         const GURU_USERNAME = 'guru'; 
         const GURU_PASSWORD = 'Mbaspartans@'; 
         // ==========================================
@@ -315,6 +372,7 @@
         const guruScreen = document.getElementById('guruScreen');
         const globalHeader = document.getElementById('globalHeader');
 
+        // Memeriksa sesi login yang tersimpan
         window.onload = () => {
             const session = localStorage.getItem('perizinan_session');
             if (session) {
@@ -323,6 +381,7 @@
             }
         };
 
+        // UI: Pindah tab Siswa/Guru di halaman login
         function switchTab(tab) {
             document.getElementById('formSiswa').classList.toggle('hidden', tab !== 'siswa');
             document.getElementById('formGuru').classList.toggle('hidden', tab !== 'guru');
@@ -336,6 +395,7 @@
             }
         }
 
+        // Logika Login Siswa
         function loginSiswa() {
             const nama = document.getElementById('loginNama').value.trim();
             const kelas = document.getElementById('loginKelas').value;
@@ -351,6 +411,7 @@
             showDashboard();
         }
 
+        // Logika Login Guru
         function loginGuru() {
             const user = document.getElementById('loginUsername').value.trim();
             const pass = document.getElementById('loginPassword').value;
@@ -402,6 +463,7 @@
                 })
                 .catch(error => {
                     console.error('Error fetching:', error);
+                    // PESAN ERROR TIDAK AKAN MUNCUL JIKA KONEKSI SEBENARNYA SUKSES
                     if(globalData.length === 0) {
                         const errMsg = `<tr><td colspan="5" class="text-center py-10"><p class="text-rose-500 font-bold">⚠️ Terjadi Gangguan Koneksi / Skrip Belum Diatur</p></td></tr>`;
                         if(loggedInUser.role === 'guru') document.getElementById('tabelGuruBody').innerHTML = errMsg;
@@ -511,10 +573,16 @@
             if(selectAllCb) selectAllCb.checked = false;
 
             let filteredData = globalData.filter(d => {
+                // Proteksi baris kosong agar tidak crash
                 const namaAman = (d.nama || "").toLowerCase();
                 const kelasAman = (d.kelas || "");
+                
+                // Cek Pencarian
                 const matchSearch = namaAman.includes(searchTxt) || kelasAman.toLowerCase().includes(searchTxt);
+                
+                // Cek Filter Kelas (jika dropdown dipilih 7, maka harus memuat "7A", "7B", dst)
                 const matchKelas = filterKelas === "" || kelasAman.startsWith(filterKelas);
+
                 return matchSearch && matchKelas;
             });
 
@@ -524,6 +592,7 @@
             }
 
             filteredData.forEach(izin => {
+                // Proteksi jika data benar-benar kosong skip saja
                 if (!izin.id || !izin.nama) return; 
 
                 let statusBadge = `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 border border-amber-200"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Menunggu</span>`;
@@ -536,7 +605,6 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50/80 transition-colors group";
                 
-                // REVISI: Tambahkan informasi "Oleh: [Nama Penyetuju]" di bawah badge status jika ada
                 tr.innerHTML = `
                     <td class="py-4 px-4 border-b border-slate-100 text-center no-print">
                         <input type="checkbox" value="${izin.id}" class="row-checkbox rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer" onchange="updatePrintButtonText()">
@@ -564,7 +632,6 @@
                     </td>
                     <td class="py-4 px-6 border-b border-slate-100 whitespace-nowrap">
                         ${statusBadge}
-                        ${izin.penyetuju ? `<div class="text-[10px] text-slate-500 mt-1.5 font-medium">Oleh: <span class="text-slate-700">${izin.penyetuju}</span></div>` : ''}
                     </td>
                     <td class="py-4 px-6 border-b border-slate-100 text-right whitespace-nowrap no-print">
                         <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -579,6 +646,7 @@
                                 <span class="text-xs text-slate-400 italic mr-2">Sudah diproses</span>
                             `}
                             
+                            <!-- Tombol Cetak PDF Individu selalu ada -->
                             <button onclick="cetakIndividu('${izin.id}')" class="p-2 bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white rounded-xl transition-colors tooltip-trigger" title="Cetak Surat Izin Siswa">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -605,20 +673,8 @@
             document.getElementById('statDitolak').innerText = statDitolak;
         }
 
-        // REVISI: Modifikasi logika verifikasi agar meminta nama petugas
         function updateStatus(id, statusBaru) {
-            let namaPenyetuju = "";
-            
-            if (statusBaru === 'Disetujui' || statusBaru === 'Ditolak') {
-                namaPenyetuju = prompt(`Masukkan nama guru/petugas yang ${statusBaru === 'Disetujui' ? 'menyetujui' : 'menolak'} izin ini:`, "");
-                if (namaPenyetuju === null) return; // Batal memproses jika klik Cancel
-                if (namaPenyetuju.trim() === "") {
-                    showToast('Nama penyetuju tidak boleh kosong!', 'error');
-                    return;
-                }
-            } else {
-                if(!confirm(`Anda yakin ingin memproses izin ini?`)) return;
-            }
+            if(!confirm(`Anda yakin ingin ${statusBaru === 'Disetujui' ? 'MENYETUJUI' : 'MENOLAK'} izin ini?`)) return;
 
             showToast('Memperbarui status...', 'info');
 
@@ -627,8 +683,7 @@
                 body: JSON.stringify({
                     action: 'updateStatus',
                     id: id,
-                    status: statusBaru,
-                    penyetuju: namaPenyetuju
+                    status: statusBaru
                 })
             })
             .then(res => res.json())
@@ -657,10 +712,12 @@
             showToast('Anda telah keluar dari aplikasi.', 'success');
         }
 
+        // FUNGSI UTAMA 1: Cetak Keseluruhan Tabel (Mode Rekap)
         function cetakPDF() {
             const checkboxes = document.querySelectorAll('.row-checkbox');
             const selectedIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
 
+            // Jika ada yang dipilih, sembunyikan baris yang tidak dipilih
             if (selectedIds.length > 0) {
                 document.querySelectorAll('#tabelGuruBody tr').forEach(tr => {
                     const cb = tr.querySelector('.row-checkbox');
@@ -679,9 +736,10 @@
                 }
             }
             
-            document.body.classList.remove('print-mode-individu');
+            document.body.classList.remove('print-mode-individu'); // Pastikan bukan mode individu
             window.print();
 
+            // Kembalikan visibilitas baris setelah dialog print ditutup
             if (selectedIds.length > 0) {
                 setTimeout(() => {
                     document.querySelectorAll('#tabelGuruBody tr.hide-for-print').forEach(tr => {
@@ -691,6 +749,7 @@
             }
         }
 
+        // FUNGSI PENDUKUNG: Centang Semua Checkbox & Update Teks Tombol
         function toggleAllCheckboxes(source) {
             const checkboxes = document.querySelectorAll('.row-checkbox');
             checkboxes.forEach(cb => cb.checked = source.checked);
@@ -722,6 +781,7 @@
             }
         }
 
+        // FUNGSI UTAMA 2: Cetak Per Individu & Massal (Surat Izin)
         function cetakIndividu(id) {
             prosesCetakSurat([id]);
         }
@@ -735,16 +795,18 @@
                 return;
             }
             
+            // Menggunakan format baru khusus cetak massal (kolektif/1 lembar)
             prosesCetakSuratKolektif(selectedIds);
         }
 
         function prosesCetakSuratKolektif(idsArray) {
             const container = document.getElementById('printSuratContainer');
-            container.innerHTML = ''; 
+            container.innerHTML = ''; // Bersihkan kontainer
             
             const now = new Date();
             const waktuCetak = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
+            // Generate baris tabel untuk setiap siswa
             let rowsHTML = '';
             idsArray.forEach((id, index) => {
                 const data = globalData.find(d => String(d.id) === String(id));
@@ -757,7 +819,6 @@
 
                 const statusColorClass = data.status === 'Disetujui' ? 'text-green-600' : (data.status === 'Ditolak' ? 'text-red-600' : 'text-yellow-600');
 
-                // REVISI: Tambahkan informasi siapa yang menyetujui di baris tabel cetak massal
                 rowsHTML += `
                     <tr>
                         <td class="py-2 px-2 border border-black text-center text-sm">${index + 1}</td>
@@ -766,14 +827,12 @@
                         <td class="py-2 px-2 border border-black text-center uppercase text-xs font-semibold">${data.kategori || "-"}</td>
                         <td class="py-2 px-2 border border-black text-xs text-center">${tglPelaksanaan}</td>
                         <td class="py-2 px-2 border border-black text-xs">${data.keterangan || "-"}</td>
-                        <td class="py-2 px-2 border border-black text-center font-bold uppercase ${statusColorClass} text-xs">
-                            ${data.status || "Menunggu"}
-                            ${data.penyetuju ? `<br><span class="text-[10px] font-normal normal-case text-black">Oleh: ${data.penyetuju}</span>` : ''}
-                        </td>
+                        <td class="py-2 px-2 border border-black text-center font-bold uppercase ${statusColorClass} text-xs">${data.status || "Menunggu"}</td>
                     </tr>
                 `;
             });
 
+            // Template Surat Kolektif
             const suratHTML = `
                 <div class="surat-page bg-white w-full max-w-4xl mx-auto p-10 pt-8">
                     <div class="flex items-center justify-between border-b-2 border-black pb-4 mb-6">
@@ -811,7 +870,7 @@
                         <div>
                             <p>Surabaya, <span>${waktuCetak}</span></p>
                             <p class="mt-1">Mengetahui,</p>
-                            <p class="mt-20 font-bold underline border-black">Administrator / Bagian Kurikulum</p>
+                            <p class="mt-20 font-bold underline border-black">Guru / Petugas Piket</p>
                         </div>
                     </div>
                 </div>
@@ -819,24 +878,29 @@
             
             container.innerHTML = suratHTML;
 
+            // Mengubah mode body agar CSS mengenali ini adalah cetak surat individu/massal
             document.body.classList.add('print-mode-individu');
             
+            // Jeda 500ms agar browser merender gambar terlebih dahulu sebelum dialog print terbuka
             setTimeout(() => {
                 window.print();
+                
+                // Mengembalikan ke mode normal setelah dialog tutup
                 setTimeout(() => {
                     document.body.classList.remove('print-mode-individu');
-                    container.innerHTML = ''; 
+                    container.innerHTML = ''; // Hapus memory template setelah dicetak
                 }, 500);
             }, 500);
         }
 
         function prosesCetakSurat(idsArray) {
             const container = document.getElementById('printSuratContainer');
-            container.innerHTML = ''; 
+            container.innerHTML = ''; // Bersihkan kontainer
             
             const now = new Date();
             const waktuCetak = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
+            // Generate HTML untuk setiap surat
             idsArray.forEach(id => {
                 const data = globalData.find(d => String(d.id) === String(id));
                 if (!data) return;
@@ -847,9 +911,6 @@
                 }
 
                 const statusColorClass = data.status === 'Disetujui' ? 'text-green-600' : (data.status === 'Ditolak' ? 'text-red-600' : 'text-yellow-600');
-
-                // REVISI: Ubah nama ttd di bagian bawah sesuai dengan penyetuju
-                const namaTtd = data.penyetuju || 'Guru / Petugas Piket';
 
                 const suratHTML = `
                     <div class="surat-page bg-white w-full max-w-3xl mx-auto p-10 pt-8">
@@ -906,7 +967,7 @@
                             <div>
                                 <p>Surabaya, <span>${waktuCetak}</span></p>
                                 <p class="mt-1">Mengetahui,</p>
-                                <p class="mt-20 font-bold underline border-black">${namaTtd}</p>
+                                <p class="mt-20 font-bold underline border-black">Guru / Petugas Piket</p>
                             </div>
                         </div>
                     </div>
@@ -915,13 +976,17 @@
                 container.innerHTML += suratHTML;
             });
 
+            // Mengubah mode body agar CSS mengenali ini adalah cetak surat individu/massal
             document.body.classList.add('print-mode-individu');
             
+            // Jeda 500ms agar browser merender gambar terlebih dahulu sebelum dialog print terbuka
             setTimeout(() => {
                 window.print();
+                
+                // Mengembalikan ke mode normal setelah dialog tutup
                 setTimeout(() => {
                     document.body.classList.remove('print-mode-individu');
-                    container.innerHTML = ''; 
+                    container.innerHTML = ''; // Hapus memory template setelah dicetak
                 }, 500);
             }, 500);
         }
