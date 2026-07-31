@@ -787,8 +787,17 @@
         }
 
         // FUNGSI UTAMA 2: Cetak Per Individu & Massal (Surat Izin)
+        
         function cetakIndividu(id) {
-            prosesCetakSurat([id]);
+            // Memunculkan pop-up input nama sebelum cetak
+            let namaPenandaTangan = prompt("Masukkan nama yang menyetujui / menandatangani surat ini:", "Guru / Petugas Piket");
+            
+            // Jika user menekan 'Cancel', batalkan proses cetak
+            if (namaPenandaTangan === null) return; 
+            // Jika user mengosongkan teks tapi klik OK, kembalikan ke default
+            if (namaPenandaTangan.trim() === '') namaPenandaTangan = "Guru / Petugas Piket";
+            
+            prosesCetakSurat([id], namaPenandaTangan);
         }
 
         function cetakSuratMassal() {
@@ -800,18 +809,22 @@
                 return;
             }
             
-            // Menggunakan format baru khusus cetak massal (kolektif/1 lembar)
-            prosesCetakSuratKolektif(selectedIds);
+            // Memunculkan pop-up input nama sebelum cetak
+            let namaPenandaTangan = prompt("Masukkan nama yang menyetujui / menandatangani surat ini:", "Guru / Petugas Piket");
+            
+            if (namaPenandaTangan === null) return; 
+            if (namaPenandaTangan.trim() === '') namaPenandaTangan = "Guru / Petugas Piket";
+
+            prosesCetakSuratKolektif(selectedIds, namaPenandaTangan);
         }
 
-        function prosesCetakSuratKolektif(idsArray) {
+        function prosesCetakSuratKolektif(idsArray, namaPenandaTangan) {
             const container = document.getElementById('printSuratContainer');
-            container.innerHTML = ''; // Bersihkan kontainer
+            container.innerHTML = ''; 
             
             const now = new Date();
             const waktuCetak = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-            // Generate baris tabel untuk setiap siswa
             let rowsHTML = '';
             idsArray.forEach((id, index) => {
                 const data = globalData.find(d => String(d.id) === String(id));
@@ -837,7 +850,6 @@
                 `;
             });
 
-            // Template Surat Kolektif
             const suratHTML = `
                 <div class="surat-page bg-white w-full max-w-4xl mx-auto p-10 pt-8">
                     <div class="flex items-center justify-between border-b-2 border-black pb-4 mb-6">
@@ -875,7 +887,7 @@
                         <div>
                             <p>Surabaya, <span>${waktuCetak}</span></p>
                             <p class="mt-1">Mengetahui,</p>
-                            <p class="mt-20 font-bold underline border-black">Guru / Petugas Piket</p>
+                            <p class="mt-20 font-bold underline border-black uppercase">${namaPenandaTangan}</p>
                         </div>
                     </div>
                 </div>
@@ -883,29 +895,25 @@
             
             container.innerHTML = suratHTML;
 
-            // Mengubah mode body agar CSS mengenali ini adalah cetak surat individu/massal
             document.body.classList.add('print-mode-individu');
             
-            // Jeda 500ms agar browser merender gambar terlebih dahulu sebelum dialog print terbuka
             setTimeout(() => {
                 window.print();
                 
-                // Mengembalikan ke mode normal setelah dialog tutup
                 setTimeout(() => {
                     document.body.classList.remove('print-mode-individu');
-                    container.innerHTML = ''; // Hapus memory template setelah dicetak
+                    container.innerHTML = ''; 
                 }, 500);
             }, 500);
         }
 
-        function prosesCetakSurat(idsArray) {
+        function prosesCetakSurat(idsArray, namaPenandaTangan) {
             const container = document.getElementById('printSuratContainer');
-            container.innerHTML = ''; // Bersihkan kontainer
+            container.innerHTML = ''; 
             
             const now = new Date();
             const waktuCetak = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-            // Generate HTML untuk setiap surat
             idsArray.forEach(id => {
                 const data = globalData.find(d => String(d.id) === String(id));
                 if (!data) return;
@@ -972,7 +980,7 @@
                             <div>
                                 <p>Surabaya, <span>${waktuCetak}</span></p>
                                 <p class="mt-1">Mengetahui,</p>
-                                <p class="mt-20 font-bold underline border-black">Guru / Petugas Piket</p>
+                                <p class="mt-20 font-bold underline border-black uppercase">${namaPenandaTangan}</p>
                             </div>
                         </div>
                     </div>
@@ -981,17 +989,14 @@
                 container.innerHTML += suratHTML;
             });
 
-            // Mengubah mode body agar CSS mengenali ini adalah cetak surat individu/massal
             document.body.classList.add('print-mode-individu');
             
-            // Jeda 500ms agar browser merender gambar terlebih dahulu sebelum dialog print terbuka
             setTimeout(() => {
                 window.print();
                 
-                // Mengembalikan ke mode normal setelah dialog tutup
                 setTimeout(() => {
                     document.body.classList.remove('print-mode-individu');
-                    container.innerHTML = ''; // Hapus memory template setelah dicetak
+                    container.innerHTML = ''; 
                 }, 500);
             }, 500);
         }
