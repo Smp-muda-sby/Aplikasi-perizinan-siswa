@@ -326,12 +326,12 @@
                         </button>
                         
                         <!-- Tombol Cetak PDF Rekapitulasi -->
-                        <button onclick="cetakPDF()" id="btnCetakRekap" class="text-sm font-bold text-rose-600 hover:text-rose-800 flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 transition-all no-print">
+                        <!--<button onclick="cetakPDF()" id="btnCetakRekap" class="text-sm font-bold text-rose-600 hover:text-rose-800 flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl bg-rose-50 hover:bg-rose-100 transition-all no-print">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                             </svg>
                             <span>Cetak PDF Laporan</span>
-                        </button>
+                        </button>-->
                     </div>
                 </div>
 
@@ -772,32 +772,29 @@
         function updatePrintButtonText() {
             const checkboxes = document.querySelectorAll('.row-checkbox');
             const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-            const btnText = document.querySelector('#btnCetakRekap span');
-            const btnSurat = document.getElementById('btnCetakSuratMassal');
-            const btnHapus = document.getElementById('btnHapusMassal'); // TAMBAHAN
             
-            if (btnText) {
-                if (selectedCount > 0) {
-                    btnText.innerText = `Cetak Rekap (${selectedCount})`;
-                    
-                    if(btnSurat) {
-                        btnSurat.classList.remove('hidden');
-                        btnSurat.querySelector('span').innerText = `Cetak Surat (${selectedCount})`;
-                    }
-                    
-                    // TAMBAHAN LOGIKA MUNCUL TOMBOL HAPUS MASSAL
-                    if(btnHapus) {
-                        btnHapus.classList.remove('hidden');
-                        btnHapus.querySelector('span').innerText = `Hapus (${selectedCount})`;
-                    }
-
-                } else {
-                    btnText.innerText = "Cetak PDF Laporan";
-                    if(btnSurat) btnSurat.classList.add('hidden');
-                    if(btnHapus) btnHapus.classList.add('hidden'); // TAMBAHAN
+            const btnSurat = document.getElementById('btnCetakSuratMassal');
+            const btnHapus = document.getElementById('btnHapusMassal'); 
+            
+            if (selectedCount > 0) {
+                // Munculkan tombol Cetak Surat & Hapus jika ada yang dicentang
+                if(btnSurat) {
+                    btnSurat.classList.remove('hidden');
+                    btnSurat.querySelector('span').innerText = `Cetak Surat (${selectedCount})`;
                 }
+                
+                if(btnHapus) {
+                    btnHapus.classList.remove('hidden');
+                    btnHapus.querySelector('span').innerText = `Hapus (${selectedCount})`;
+                }
+
+            } else {
+                // Sembunyikan jika tidak ada yang dicentang
+                if(btnSurat) btnSurat.classList.add('hidden');
+                if(btnHapus) btnHapus.classList.add('hidden'); 
             }
             
+            // Logika untuk checkbox "Pilih Semua"
             const selectAllCb = document.getElementById('selectAllCheckbox');
             if(selectAllCb && checkboxes.length > 0) {
                 selectAllCb.checked = (selectedCount === checkboxes.length);
