@@ -364,7 +364,48 @@
 
     <!-- Toast Notification -->
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
+    
+    <!-- ========================================== -->
+    <!-- MODAL DROPDOWN PILIH PETUGAS & TANDA TANGAN -->
+    <!-- ========================================== -->
+    <div id="modalPilihPetugas" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 no-print">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 transform transition-all border border-slate-100">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-50 p-2 rounded-xl text-indigo-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800">Pilih Petugas Piket</h3>
+                        <p class="text-xs text-slate-500">Pilih penandatangan surat izin</p>
+                    </div>
+                </div>
+                <button onclick="tutupModalPetugas()" class="text-slate-400 hover:text-slate-600 font-bold text-xl p-1">&times;</button>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Nama Petugas Bertugas:</label>
+                <select id="selectPetugasModal" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <option value="0">1. Imam Haromain, S.Pd, M.Pd</option>
+                    <option value="1">2. Dwi Bagus Subroto, S.Pd</option>
+                    <option value="2">3. Naufal Ridho Kushernanda, S.Psi</option>
+                    <option value="3">4. Ratih Indah Yuni Irawati, S.Psi, S.Pd</option>
+                    <option value="4">5. Nur Asyha, S.Pd</option>
+                </select>
+            </div>
+    
+            <div class="flex justify-end gap-3">
+                <button onclick="tutupModalPetugas()" class="px-5 py-2.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-sm transition">
+                    Batal
+                </button>
+                <button onclick="eksekusiCetakSurat()" class="px-5 py-2.5 text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold text-sm shadow-md shadow-indigo-200 transition flex items-center gap-2">
+                    <span>🖨️ Cetak Surat</span>
+                </button>
+            </div>
+        </div>
+    </div>
     <script>
         // ==========================================
         // KONFIGURASI UTAMA
@@ -800,21 +841,31 @@
                 selectAllCb.checked = (selectedCount === checkboxes.length);
             }
         }
-
-        // FUNGSI UTAMA 2: Cetak Per Individu & Massal (Surat Izin)
+        // ==========================================
+        // DATA PETUGAS & TANDA TANGAN DIGITAL
+        // ==========================================
+        // Catatan: Ganti path file 'ttd' dengan path gambar tanda tangan masing-masing guru jika ada (misal: 'ttd_imam.png')
+        const DAFTAR_PETUGAS = [
+            { nama: "Imam Haromain, S.Pd, M.Pd", ttd: "images/ttd_imam.png" },
+            { nama: "Dwi Bagus Subroto, S.Pd", ttd: "images/ttd_bagus.png" },
+            { nama: "Naufal Ridho Kushernanda, S.Psi", ttd: "images/ttd_naufal.png" },
+            { nama: "Ratih Indah Yuni Irawati, S.Psi, S.Pd", ttd: "images/ttd_ratih.png" },
+            { nama: "Nur Asyha, S.Pd", ttd: "images/ttd_nur.png" }
+        ];
         
+        // Variable Temporary
+        let modeCetakSaatIni = 'individu'; // 'individu' atau 'kolektif'
+        let idsTargetCetak = [];
+        
+        // ==========================================
+        // LOGIKA MODAL DROPDOWN PETUGAS
+        // ==========================================
         function cetakIndividu(id) {
-            // Memunculkan pop-up input nama sebelum cetak
-            let namaPenandaTangan = prompt("Masukkan nama yang menyetujui / menandatangani surat ini:", "Guru / Petugas Piket");
-            
-            // Jika user menekan 'Cancel', batalkan proses cetak
-            if (namaPenandaTangan === null) return; 
-            // Jika user mengosongkan teks tapi klik OK, kembalikan ke default
-            if (namaPenandaTangan.trim() === '') namaPenandaTangan = "Guru / Petugas Piket";
-            
-            prosesCetakSurat([id], namaPenandaTangan);
+            modeCetakSaatIni = 'individu';
+            idsTargetCetak = [id];
+            bukaModalPetugas();
         }
-
+        
         function cetakSuratMassal() {
             const checkboxes = document.querySelectorAll('.row-checkbox');
             const selectedIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
@@ -823,35 +874,59 @@
                 showToast('Pilih minimal satu data untuk dicetak!', 'error');
                 return;
             }
-            
-            // Memunculkan pop-up input nama sebelum cetak
-            let namaPenandaTangan = prompt("Masukkan nama yang menyetujui / menandatangani surat ini:", "Guru / Petugas Piket");
-            
-            if (namaPenandaTangan === null) return; 
-            if (namaPenandaTangan.trim() === '') namaPenandaTangan = "Guru / Petugas Piket";
-
-            prosesCetakSuratKolektif(selectedIds, namaPenandaTangan);
+        
+            modeCetakSaatIni = 'kolektif';
+            idsTargetCetak = selectedIds;
+            bukaModalPetugas();
         }
-
-        function prosesCetakSuratKolektif(idsArray, namaPenandaTangan) {
+        
+        function bukaModalPetugas() {
+            const modal = document.getElementById('modalPilihPetugas');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        
+        function tutupModalPetugas() {
+            const modal = document.getElementById('modalPilihPetugas');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+        
+        function eksekusiCetakSurat() {
+            const indexPetugas = document.getElementById('selectPetugasModal').value;
+            const petugasTerpilih = DAFTAR_PETUGAS[indexPetugas];
+        
+            tutupModalPetugas();
+        
+            if (modeCetakSaatIni === 'kolektif') {
+                prosesCetakSuratKolektif(idsTargetCetak, petugasTerpilih);
+            } else {
+                prosesCetakSurat(idsTargetCetak, petugasTerpilih);
+            }
+        }
+        
+        // ==========================================
+        // FUNGSI GENERATE TEMPLATE SURAT + TTD
+        // ==========================================
+        function prosesCetakSuratKolektif(idsArray, petugas) {
             const container = document.getElementById('printSuratContainer');
             container.innerHTML = ''; 
             
             const now = new Date();
             const waktuCetak = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-
+        
             let rowsHTML = '';
             idsArray.forEach((id, index) => {
                 const data = globalData.find(d => String(d.id) === String(id));
                 if (!data) return;
-
+        
                 let tglPelaksanaan = formatTanggalIndo(data.waktuMulai);
                 if (data.waktuMulai !== data.waktuAkhir) {
                     tglPelaksanaan += `<br>s/d<br>${formatTanggalIndo(data.waktuAkhir)}`;
                 }
-
+        
                 const statusColorClass = data.status === 'Disetujui' ? 'text-green-600' : (data.status === 'Ditolak' ? 'text-red-600' : 'text-yellow-600');
-
+        
                 rowsHTML += `
                     <tr>
                         <td class="py-2 px-2 border border-black text-center text-sm">${index + 1}</td>
@@ -864,7 +939,7 @@
                     </tr>
                 `;
             });
-
+        
             const suratHTML = `
                 <div class="surat-page bg-white w-full max-w-4xl mx-auto p-10 pt-8">
                     <div class="flex items-center justify-between border-b-2 border-black pb-4 mb-6">
@@ -897,49 +972,51 @@
                         </table>
                         <p class="mt-4">Surat ini digenerate secara otomatis melalui sistem Portal Perizinan Sekolah dan sah dipergunakan sebagaimana mestinya.</p>
                     </div>
-
+        
+                    <!-- BAGIAN TANDA TANGAN -->
                     <div class="flex justify-end mt-12 text-center">
-                        <div>
+                        <div class="flex flex-col items-center min-w-[220px]">
                             <p>Surabaya, <span>${waktuCetak}</span></p>
-                            <p class="mt-1">Mengetahui,</p>
-                            <p class="mt-20 font-bold underline border-black uppercase">${namaPenandaTangan}</p>
+                            <p class="mt-1">Mengetahui, Petugas Piket</p>
+                            <div class="h-20 my-2 flex items-center justify-center">
+                                <img src="${petugas.ttd}" alt="Tanda Tangan" class="max-h-20 object-contain" onerror="this.style.display='none'">
+                            </div>
+                            <p class="font-bold underline border-black uppercase">${petugas.nama}</p>
                         </div>
                     </div>
                 </div>
             `;
             
             container.innerHTML = suratHTML;
-
             document.body.classList.add('print-mode-individu');
             
             setTimeout(() => {
                 window.print();
-                
                 setTimeout(() => {
                     document.body.classList.remove('print-mode-individu');
                     container.innerHTML = ''; 
                 }, 500);
             }, 500);
         }
-
-        function prosesCetakSurat(idsArray, namaPenandaTangan) {
+        
+        function prosesCetakSurat(idsArray, petugas) {
             const container = document.getElementById('printSuratContainer');
             container.innerHTML = ''; 
             
             const now = new Date();
             const waktuCetak = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-
+        
             idsArray.forEach(id => {
                 const data = globalData.find(d => String(d.id) === String(id));
                 if (!data) return;
-
+        
                 let tglPelaksanaan = formatTanggalIndo(data.waktuMulai);
                 if (data.waktuMulai !== data.waktuAkhir) {
                     tglPelaksanaan += ` s/d ${formatTanggalIndo(data.waktuAkhir)}`;
                 }
-
+        
                 const statusColorClass = data.status === 'Disetujui' ? 'text-green-600' : (data.status === 'Ditolak' ? 'text-red-600' : 'text-yellow-600');
-
+        
                 const suratHTML = `
                     <div class="surat-page bg-white w-full max-w-3xl mx-auto p-10 pt-8">
                         <div class="flex items-center justify-between border-b-2 border-black pb-4 mb-6">
@@ -990,12 +1067,16 @@
                             </table>
                             <p>Surat ini digenerate secara otomatis melalui sistem Portal Perizinan Sekolah dan sah dipergunakan sebagaimana mestinya.</p>
                         </div>
-
-                        <div class="flex justify-end mt-16 text-center">
-                            <div>
+        
+                        <!-- BAGIAN TANDA TANGAN -->
+                        <div class="flex justify-end mt-12 text-center">
+                            <div class="flex flex-col items-center min-w-[220px]">
                                 <p>Surabaya, <span>${waktuCetak}</span></p>
-                                <p class="mt-1">Mengetahui,</p>
-                                <p class="mt-20 font-bold underline border-black uppercase">${namaPenandaTangan}</p>
+                                <p class="mt-1">Mengetahui, Petugas Piket</p>
+                                <div class="h-20 my-2 flex items-center justify-center">
+                                    <img src="${petugas.ttd}" alt="Tanda Tangan" class="max-h-20 object-contain" onerror="this.style.display='none'">
+                                </div>
+                                <p class="font-bold underline border-black uppercase">${petugas.nama}</p>
                             </div>
                         </div>
                     </div>
@@ -1003,18 +1084,18 @@
                 
                 container.innerHTML += suratHTML;
             });
-
+        
             document.body.classList.add('print-mode-individu');
             
             setTimeout(() => {
                 window.print();
-                
                 setTimeout(() => {
                     document.body.classList.remove('print-mode-individu');
                     container.innerHTML = ''; 
                 }, 500);
             }, 500);
         }
+        
 
         // TAMBAHAN: Fungsi Hapus Massal dan Hapus Data
         function hapusMassal() {
